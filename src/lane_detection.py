@@ -20,7 +20,7 @@ class LaneDetection:
 
     """
 
-    def __init__(self, cut_size=68, spline_smoothness=10, gradient_threshold=14, distance_maxima_gradient=3):
+    def __init__(self, cut_size=68, spline_smoothness=10, gradient_threshold=20, distance_maxima_gradient=3):
         self.car_position = np.array([48, 0])
         self.spline_smoothness = spline_smoothness
         self.cut_size = cut_size
@@ -48,7 +48,7 @@ class LaneDetection:
         # Crop Information bar from image
         gray_state_image = gray_state_image[:cut_size, :]
         # Reshape image to a single channel
-        gray_state_image = gray_state_image.reshape(cut_size, 96, 1)
+        #gray_state_image = gray_state_image.reshape(cut_size, 96, 1)
         return gray_state_image[::-1]
 
     def edge_detection(self, gray_image):
@@ -69,7 +69,7 @@ class LaneDetection:
         # Compute image Gradient
         gradient_sum = filters.sobel(gray_image)
         # Smooth out small gradients
-        gradient_sum[gradient_sum < self.gradient_threshold < self.gradient_threshold] = 0
+        gradient_sum[gradient_sum < self.gradient_threshold/255] = 0
 
         return gradient_sum
 
@@ -84,6 +84,7 @@ class LaneDetection:
         output:
             :returns maxima (np.array) 2x Number_maxima
         """
+        argmaxima = np.apply_along_axis(find_peaks, 1, gradient_sum, distance=self.distance_maxima_gradient)
 
         return argmaxima
 
