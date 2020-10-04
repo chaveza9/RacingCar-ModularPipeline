@@ -4,6 +4,9 @@ from scipy.signal import find_peaks
 from scipy.interpolate import splprep, splev
 import skimage.color as color
 import skimage.filters as filters
+from scipy import ndimage as ndi
+from skimage import feature
+
 from scipy.optimize import minimize
 import time
 
@@ -20,7 +23,7 @@ class LaneDetection:
 
     """
 
-    def __init__(self, cut_size=68, spline_smoothness=10, gradient_threshold=20, distance_maxima_gradient=3):
+    def __init__(self, cut_size=68, spline_smoothness=3, gradient_threshold=20, distance_maxima_gradient=3):
         self.car_position = np.array([48, 0])
         self.spline_smoothness = spline_smoothness
         self.cut_size = cut_size
@@ -66,11 +69,19 @@ class LaneDetection:
             :returns gradient_sum 68x96x1
 
         """
+        filter_type = "canny"
         cut_size = self.cut_size
         # Compute image Gradient
-        gradient_sum = filters.sobel(gray_image)
-        # Smooth out small gradients
-        gradient_sum[gradient_sum < self.gradient_threshold/255] = 0
+        if filter_type == "sobel":
+            gradient_sum = filters.sobel(gray_image)
+            # Smooth out small gradients
+            gradient_sum[gradient_sum < self.gradient_threshold/255] = 0
+        elif filter_type == "canny":
+            # Add gaussian blur
+            gray_image = ndi.gaussian_filter(gray_image, 4)
+            # Compute gradients
+            gradient_sum = feature.canny(gray_image, sigma = 0)
+            gradient_sum = np.float64(gradient_sum)
         # Fill missing points
         gradient_sum[0, :] = gradient_sum[1, :]
         gradient_sum[cut_size - 1, :] = gradient_sum[cut_size - 2, :]
@@ -202,7 +213,7 @@ class LaneDetection:
                     closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
                     # lane_boundary 2
                     closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
-                    if (100 >= dist_1 > 0) or (100 >= dist_2 > 0):
+                    if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
                         # Assign new values
                         old_point_1 = closest_point_1
                         old_point_2 = closest_point_2
@@ -212,10 +223,6 @@ class LaneDetection:
                 # Increase row value
                 row += 1
 
-            ################
-
-
-            ##### TODO #####
             # spline fitting using scipy.interpolate.splprep 
             # and the arguments self.spline_smoothness
             # 
