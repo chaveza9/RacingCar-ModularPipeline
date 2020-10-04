@@ -35,10 +35,10 @@ class LaneDetection:
         and translate to grey scale
 
         input:
-            state_image_full 96x96x3
+            :param state_image_full 96x96x3
 
         output:
-            gray_state_image 68x96x1
+            :return gray_state_image 68x96x1
 
         """
         # Extract cutting limits
@@ -60,16 +60,20 @@ class LaneDetection:
         To ignore small gradients, set all gradients below a threshold (self.gradient_threshold) to zero. 
 
         input:
-            gray_state_image 68x96x1
+            :param gray_state_image 68x96x1
 
         output:
-            gradient_sum 68x96x1
+            :returns gradient_sum 68x96x1
 
         """
+        cut_size = self.cut_size
         # Compute image Gradient
         gradient_sum = filters.sobel(gray_image)
         # Smooth out small gradients
         gradient_sum[gradient_sum < self.gradient_threshold/255] = 0
+        # Fill missing points
+        gradient_sum[0, :] = gradient_sum[1, :]
+        gradient_sum[cut_size - 1, :] = gradient_sum[cut_size - 2, :]
 
         return gradient_sum
 
@@ -84,24 +88,24 @@ class LaneDetection:
         output:
             :returns maxima (np.array) 2x Number_maxima
         """
-        argmaxima = np.apply_along_axis(find_peaks, 1, gradient_sum, distance=self.distance_maxima_gradient)
+        arg_maxima = np.apply_along_axis(find_peaks, 1, gradient_sum, distance=self.distance_maxima_gradient)
 
-        return argmaxima
+        return arg_maxima
 
     def find_first_lane_point(self, gradient_sum):
-        '''
+        """
         Find the first lane_boundaries points above the car.
         Special cases like just detecting one lane_boundary or more than two are considered. 
         Even though there is space for improvement ;) 
 
         input:
-            gradient_sum 68x96x1
+            :param gradient_sum 68x96x1
 
         output: 
-            lane_boundary1_startpoint
-            lane_boundary2_startpoint
-            lanes_found  true if lane_boundaries were found
-        '''
+            :returns lane_boundary1_startpoint
+            :returns lane_boundary2_startpoint
+            :returns lanes_found  true if lane_boundaries were found
+        """
 
         # Variable if lanes were found or not
         lanes_found = False
@@ -149,17 +153,16 @@ class LaneDetection:
         return lane_boundary1_startpoint, lane_boundary2_startpoint, lanes_found
 
     def lane_detection(self, state_image_full):
-        '''
-        ##### TODO #####
+        """
         This function should perform the road detection 
 
         args:
-            state_image_full [96, 96, 3]
+            :param state_image_full [96, 96, 3]
 
         out:
-            lane_boundary1 spline
-            lane_boundary2 spline
-        '''
+            :return lane_boundary1 spline
+            :return lane_boundary2 spline
+        """
 
         # to gray
         gray_state = self.cut_gray(state_image_full)
@@ -171,22 +174,46 @@ class LaneDetection:
         # first lane_boundary points
         lane_boundary1_points, lane_boundary2_points, lane_found = self.find_first_lane_point(gradient_sum)
 
+        old_point_1 = lane_boundary1_points
+        old_point_2 = lane_boundary2_points
+        row = 0
+        boundary1_points = []
+        boundary2_points = []
+
         # if no lane was found,use lane_boundaries of the preceding step
         if lane_found:
 
             ##### TODO #####
             #  in every iteration: 
             # 1- find maximum/edge with the lowest distance to the last lane boundary point 
-            # 2- append maxium to lane_boundary1_points or lane_boundary2_points
+            # 2- append maximum to lane_boundary1_points or lane_boundary2_points
             # 3- delete maximum from maxima
             # 4- stop loop if there is no maximum left 
             #    or if the distance to the next one is too big (>=100)
-
-            # lane_boundary 1
-
-            # lane_boundary 2
+            # Iterate through maxima
+            for maximum in maxima:
+                # if row is empty check next iteration
+                if maximum[0].shape[0] != 0:
+                    # Form coordinate list
+                    edge_points = []
+                    for edge in maximum[0]:
+                        edge_points.append(np.array([edge, row]))
+                    # lane_boundary 1
+                    closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
+                    # lane_boundary 2
+                    closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
+                    if (100 >= dist_1 > 0) or (100 >= dist_2 > 0):
+                        # Assign new values
+                        old_point_1 = closest_point_1
+                        old_point_2 = closest_point_2
+                        # Append lane values
+                        lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
+                        lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                # Increase row value
+                row += 1
 
             ################
+
 
             ##### TODO #####
             # spline fitting using scipy.interpolate.splprep 
@@ -195,11 +222,19 @@ class LaneDetection:
             # if there are more lane_boundary points points than spline parameters 
             # else use perceding spline
             if lane_boundary1_points.shape[0] > 4 and lane_boundary2_points.shape[0] > 4:
-                print("s")
                 # Pay attention: the first lane_boundary point might occur twice
+                # Compute uniques
+                lane_boundary1_points = np.unique(lane_boundary1_points, axis=0)
                 # lane_boundary 1
-
+                # Compute spline
+                x_1 = np.float64(lane_boundary1_points[:, 0])
+                y_1 = np.float64(lane_boundary1_points[:, 1])
+                lane_boundary1, _ = splprep([x_1, y_1], s=self.spline_smoothness)
                 # lane_boundary 2
+                lane_boundary2_points = np.unique(lane_boundary2_points, axis=0)
+                x_2 = np.float64(lane_boundary2_points[:, 0])
+                y_2 = np.float64(lane_boundary2_points[:, 1])
+                lane_boundary2, _ = splprep([x_2, y_2], s=self.spline_smoothness)
 
             else:
                 lane_boundary1 = self.lane_boundary1_old
@@ -215,6 +250,12 @@ class LaneDetection:
 
         # output the spline
         return lane_boundary1, lane_boundary2
+
+    def closest_node(self, point, points):
+        points = np.asarray(points)
+        dist_2 = np.sum((points - point) ** 2, axis=1)
+        min_indx = np.argmin(dist_2)
+        return points[min_indx: min_indx+1, :], dist_2[min_indx]
 
     def plot_state_lane(self, state_image_full, steps, fig, waypoints=[]):
         '''
