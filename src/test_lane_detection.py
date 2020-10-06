@@ -1,7 +1,7 @@
 import gym
 from gym.envs.box2d.car_racing import CarRacing
 
-from lane_detection import LaneDetection
+from src.lane_detection import LaneDetection
 import matplotlib.pyplot as plt
 import numpy as np
 import pyglet

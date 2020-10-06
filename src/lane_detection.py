@@ -51,7 +51,7 @@ class LaneDetection:
         # Crop Information bar from image
         gray_state_image = gray_state_image[:cut_size, :]
         # Reshape image to a single channel
-        #gray_state_image = gray_state_image.reshape(cut_size, 96, 1)
+        # gray_state_image = gray_state_image.reshape(cut_size, 96, 1)
         return gray_state_image[::-1]
 
     def edge_detection(self, gray_image):
