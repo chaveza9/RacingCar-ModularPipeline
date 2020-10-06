@@ -9,10 +9,11 @@ import time
 
 
 def normalize(v):
-    norm = np.linalg.norm(v,axis=0) + 0.00001
+    norm = np.linalg.norm(v, axis=0) + 0.00001
     return v / norm.reshape(1, v.shape[1])
 
-def curvature(waypoints):
+
+def curvature(waypoints: np.ndarray):
     '''
     ##### TODO #####
     Curvature as  the sum of the normalized dot product between the way elements
@@ -21,8 +22,15 @@ def curvature(waypoints):
     args: 
         waypoints [2, num_waypoints] !!!!!
     '''
-
+    curvature = 0
+    x = waypoints
+    for n in np.linspace(1, waypoints.shape[1] - 1):
+        curvature += unit_vector((x[:, n + 1] - x[:, n])).dot(unit_vector((x[:, n] - x[:, n - 1])))
     return curvature
+
+
+def unit_vector(v):
+    return v / np.linalg.norm(v)
 
 
 def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
@@ -35,15 +43,15 @@ def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
         weight_curvature (default=40)
     '''
     # mean least square error between waypoint and way point center
-    ls_tocenter = np.mean((waypoints_center - waypoints)**2)
+    ls_tocenter = np.mean((waypoints_center - waypoints) ** 2)
 
     # derive curvature
-    curv = curvature(waypoints.reshape(2,-1))
+    curv = curvature(waypoints.reshape(2, -1))
 
     return -1 * weight_curvature * curv + ls_tocenter
 
 
-def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type = "smooth"):
+def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type="smooth"):
     '''
     ##### TODO #####
     Predict waypoint via two different methods:
@@ -65,22 +73,21 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
     df = pd.DataFrame([list(A), list(B)]).T
     df.columns = ['A', 'B']
 
-
     if way_type == "center":
         ##### TODO #####
-     
+
         # create spline arguments
 
         # derive roadside points from spline
 
-        #center
+        # center
         km = KMeans(n_clusters=20).fit(df)
         # pts = km.cluster_centers_[km.labels_]
         way_points = (km.cluster_centers_[:, 0], km.cluster_centers_[:, 1], '.')
 
         # output way_points with shape(2 x Num_waypoints)
         return way_points
-    
+
     elif way_type == "smooth":
         ##### TODO #####
 
@@ -90,18 +97,17 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
         # derive center between corresponding roadside points (assumed)
 
-        #smooth
+        # smooth
         km = KMeans(n_clusters=12).fit(df)
         pts = km.cluster_centers_[km.labels_]
         way_points_center = (pts[:, 0], pts[:, 1])
 
-
         # optimization
-        way_points = minimize(smoothing_objective, 
-                      (way_points_center), 
-                      args=way_points_center)["x"]
+        way_points = minimize(smoothing_objective,
+                              (way_points_center),
+                              args=way_points_center)["x"]
 
-        return way_points.reshape(2,-1)
+        return way_points.reshape(2, -1)
 
 
 def target_speed_prediction(waypoints, num_waypoints_used=5,
@@ -121,6 +127,5 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
     output:
         target_speed (float)
     '''
-
 
     # return target_speed
