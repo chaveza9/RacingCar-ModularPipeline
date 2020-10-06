@@ -34,14 +34,14 @@ def unit_vector(v):
 
 
 def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
-    '''
+    """
     Objective for path smoothing
 
     args:
         waypoints [2 * num_waypoints] !!!!!
         waypoints_center [2 * num_waypoints] !!!!!
         weight_curvature (default=40)
-    '''
+    """
     # mean least square error between waypoint and way point center
     ls_tocenter = np.mean((waypoints_center - waypoints) ** 2)
 
@@ -112,8 +112,7 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
 def target_speed_prediction(waypoints, num_waypoints_used=5,
                             max_speed=60, exp_constant=4.5, offset_speed=30):
-    '''
-    ##### TODO #####
+    """
     Predict target speed given waypoints
     Implement the function using curvature()
 
@@ -126,6 +125,9 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
     
     output:
         target_speed (float)
-    '''
+    """
 
-    # return target_speed
+    target_speed = (max_speed - offset_speed)*np.exp(exp_constant*np.abs(\
+        num_waypoints_used - 2 -curvature(waypoints))) + offset_speed
+
+    return target_speed
