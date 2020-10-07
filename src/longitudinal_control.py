@@ -42,8 +42,20 @@ class LongitudinalController:
         """
         
         # define error from set point target_speed to speed 
-
-        # derive PID elements
+        err = target_speed -  speed
+        self.sum_error = self.sum_error + err
+        # Limit error sum
+        self.sum_error = np.clip(self.sum_error, -2, 2)
+        # Proportional Control
+        P = self.KP * err
+        # Integral Control
+        I =  self.KI * self.sum_error
+        # Derivative Control
+        D = self.KD * (err - self.last_error)
+        # Compute Control Variables
+        control = P+D+I
+        # Populate historical values
+        self.last_error = err
 
         return control
 
