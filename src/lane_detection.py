@@ -198,8 +198,6 @@ class LaneDetection:
 
         # if no lane was found,use lane_boundaries of the preceding step
         if lane_found:
-
-            ##### TODO #####
             #  in every iteration: 
             # 1- find maximum/edge with the lowest distance to the last lane boundary point 
             # 2- append maximum to lane_boundary1_points or lane_boundary2_points
@@ -213,7 +211,7 @@ class LaneDetection:
                     edge_points = []
                     for edge in maxima[row]:
                         edge_points.append(np.array([edge, row]))
-                    print(edge_points)
+                    #print(edge_points)
                     # lane_boundary 1
                     closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
                     # lane_boundary 2
@@ -275,11 +273,12 @@ class LaneDetection:
         return points[min_indx: min_indx+1, :], dist_2[min_indx]
 
     def plot_state_lane(self, state_image_full, steps, fig, waypoints=[]):
-        '''
+        """
         Plot lanes and way points
-        '''
+        """
         # evaluate spline for 6 different spline parameters.
         t = np.linspace(0, 1, 6)
+        test=splev(t, self.lane_boundary1_old)
         lane_boundary1_points_points = np.array(splev(t, self.lane_boundary1_old))
         lane_boundary2_points_points = np.array(splev(t, self.lane_boundary2_old))
 

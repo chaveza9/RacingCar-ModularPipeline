@@ -48,7 +48,7 @@ plt.show()
 
 while True:
     # perform step
-    s, r, done, speed  = env.step(action=a)
+    s, r, done, speed, _  = env.step(action=a)
     # lane detection
     splines = LD_module.lane_detection(s)
     
