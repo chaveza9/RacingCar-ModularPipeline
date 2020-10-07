@@ -49,7 +49,7 @@ plt.show()
 
 while True:
     # perform step
-    s, r, done, speed = env.step(a)
+    s, r, done, speed, info = env.step(a)
     
     # lane detection
     lane1, lane2 = LD_module.lane_detection(s)

@@ -70,14 +70,15 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
         #center
 
-        # pts = km.cluster_centers_[km.labels_]
         t = np.linspace(0, 1, 6)
-
-        lane_boundary1_points_points = np.array(splev(t, self.lane_boundary1_old))
-
-        lane_boundary2_points_points = np.array(splev(t, self.lane_boundary2_old))
+        lane_boundary1_points_points = np.array(splev(t, roadside1_spline))
+        lane_boundary2_points_points = np.array(splev(t, roadside2_spline))
 
         # output way_points with shape(2 x Num_waypoints)
+        way_points = np.empty(shape=(2, num_waypoints))
+        for i in range(2):
+            for j in range(num_waypoints):
+                way_points[i][j] = ((lane_boundary1_points_points[i][j] + lane_boundary2_points_points[i][j]) / 2)
         return way_points
     
     elif way_type == "smooth":
