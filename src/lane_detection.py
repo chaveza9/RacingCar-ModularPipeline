@@ -213,7 +213,7 @@ class LaneDetection:
                     edge_points = []
                     for edge in maxima[row]:
                         edge_points.append(np.array([edge, row]))
-                    print(edge_points)
+                    #print(edge_points)
                     # lane_boundary 1
                     closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
                     # lane_boundary 2
@@ -275,9 +275,9 @@ class LaneDetection:
         return points[min_indx: min_indx+1, :], dist_2[min_indx]
 
     def plot_state_lane(self, state_image_full, steps, fig, waypoints=[]):
-        '''
+        """
         Plot lanes and way points
-        '''
+        """
         # evaluate spline for 6 different spline parameters.
         t = np.linspace(0, 1, 6)
         lane_boundary1_points_points = np.array(splev(t, self.lane_boundary1_old))
@@ -292,9 +292,9 @@ class LaneDetection:
         if len(waypoints):
             plt.scatter(waypoints[0], waypoints[1] + 96 - self.cut_size, color='white')
 
-        plt.axis('off')
+        #plt.axis('off')
         plt.xlim((-0.5, 95.5))
         plt.ylim((-0.5, 95.5))
-        plt.gca().axes.get_xaxis().set_visible(False)
-        plt.gca().axes.get_yaxis().set_visible(False)
+        plt.gca().axes.get_xaxis().set_visible(True)
+        plt.gca().axes.get_yaxis().set_visible(True)
         fig.canvas.flush_events()
