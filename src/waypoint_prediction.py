@@ -97,8 +97,8 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
 
         # optimization
-        way_points = minimize(smoothing_objective, 
-                      (way_points_center), 
+        way_points = minimize(smoothing_objective, \
+                      (way_points_center), \
                       args=way_points_center)["x"]
 
         return way_points.reshape(2,-1)
@@ -122,5 +122,5 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
         target_speed (float)
     '''
 
-
+    pass
     # return target_speed

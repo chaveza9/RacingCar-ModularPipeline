@@ -1,8 +1,8 @@
 import gym
 from gym.envs.box2d.car_racing import CarRacing
 
-from src.lane_detection import LaneDetection
-from src.waypoint_prediction import waypoint_prediction, target_speed_prediction
+from lane_detection import LaneDetection
+from waypoint_prediction import waypoint_prediction, target_speed_prediction
 import matplotlib.pyplot as plt
 import numpy as np
 import pyglet
