@@ -1,7 +1,7 @@
 import gym
 from gym.envs.box2d.car_racing import CarRacing
 
-from src.lane_detection import LaneDetection
+from lane_detection import LaneDetection
 import matplotlib.pyplot as plt
 import numpy as np
 import pyglet
@@ -48,7 +48,7 @@ plt.show()
 
 while True:
     # perform step
-    s, r, done, speed  = env.step(action=a)
+    s, r, done, speed = env.step(action=a)
     # lane detection
     splines = LD_module.lane_detection(s)
     

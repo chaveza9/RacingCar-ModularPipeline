@@ -270,8 +270,10 @@ class LaneDetection:
         '''
         # evaluate spline for 6 different spline parameters.
         t = np.linspace(0, 1, 6)
-        lane_boundary1_points_points = np.array(splev(t, self.lane_boundary1_old))
-        lane_boundary2_points_points = np.array(splev(t, self.lane_boundary2_old))
+        t1=splev(t, self.lane_boundary1_old)
+        lane_boundary1_points_points = np.array(t1)
+        t2=splev(t, self.lane_boundary2_old)
+        lane_boundary2_points_points = np.array(t2)
 
         plt.gcf().clear()
         plt.imshow(state_image_full[::-1])

@@ -43,7 +43,7 @@ def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
     return -1 * weight_curvature * curv + ls_tocenter
 
 
-def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type = "smooth"):
+def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type = "center"):
     '''
     ##### TODO #####
     Predict waypoint via two different methods:
@@ -58,12 +58,7 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         waytype (default="smoothed")
     '''
 
-    # derive center between corresponding roadside points (assumed)
-    A = 155, 158, 182, 186, 195, 256, 263, 275, 284, 317, 317, 317, 316, 316, 312, 310, 305, 295, 296, 300, 294, 288, 280, 266, 251, 194, 189, 188, 187, 183, 142, 126, 101, 101, 101, 131, 189, 232, 290, 306, 309, 309, 309, 288, 266, 227, 218, 214, 208, 175, 156, 134, 89, 79, 72, 58, 57, 56, 69, 87, 132, 154, 167, 196, 234, 252, 260, 274, 281, 281, 281, 233, 201, 176, 132, 110, 90, 74, 74, 74, 75, 75, 77, 94, 108, 151
-    B = 475, 475, 492, 492, 492, 519, 521, 524, 524, 524, 495, 494, 488, 487, 471, 471, 471, 484, 488, 492, 496, 499, 499, 499, 492, 467, 467, 467, 467, 467, 436, 420, 397, 387, 375, 360, 329, 284, 224, 178, 170, 163, 142, 132, 122, 122, 122, 124, 128, 133, 136, 136, 136, 126, 119, 124, 134, 146, 152, 161, 161, 161, 158, 151, 151, 151, 152, 153, 158, 165, 178, 248, 283, 308, 329, 340, 358, 374, 381, 382, 386, 388, 400, 421, 437, 475
-
-    df = pd.DataFrame([list(A), list(B)]).T
-    df.columns = ['A', 'B']
+    # derive center between corresponding roadside points
 
 
     if way_type == "center":
@@ -74,9 +69,13 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         # derive roadside points from spline
 
         #center
-        km = KMeans(n_clusters=20).fit(df)
+
         # pts = km.cluster_centers_[km.labels_]
-        way_points = (km.cluster_centers_[:, 0], km.cluster_centers_[:, 1], '.')
+        t = np.linspace(0, 1, 6)
+
+        lane_boundary1_points_points = np.array(splev(t, self.lane_boundary1_old))
+
+        lane_boundary2_points_points = np.array(splev(t, self.lane_boundary2_old))
 
         # output way_points with shape(2 x Num_waypoints)
         return way_points
@@ -91,9 +90,9 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         # derive center between corresponding roadside points (assumed)
 
         #smooth
-        km = KMeans(n_clusters=12).fit(df)
-        pts = km.cluster_centers_[km.labels_]
-        way_points_center = (pts[:, 0], pts[:, 1])
+        # km = KMeans(n_clusters=12).fit(df)
+        # pts = km.cluster_centers_[km.labels_]
+        # way_points_center = (pts[:, 0], pts[:, 1])
 
 
         # optimization
