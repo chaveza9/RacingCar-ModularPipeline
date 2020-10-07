@@ -56,7 +56,6 @@ class LaneDetection:
 
     def edge_detection(self, gray_image):
         """
-        ##### TODO #####
         In order to find edges in the gray state image, 
         this function should derive the absolute gradients of the gray state image.
         Derive the absolute gradients using numpy for each pixel. 
@@ -106,7 +105,6 @@ class LaneDetection:
 
         return arg_maxima
 
-        return arg_maxima
 
     def find_first_lane_point(self, gradient_sum):
         """
