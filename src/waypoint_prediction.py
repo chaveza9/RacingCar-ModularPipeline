@@ -131,11 +131,11 @@ class SpeedPrediction:
         self.curv_history.append(curv)
         # Check if closed curve is approaching
         if len(self.curv_history)>30:
-            if np.abs(curvature(waypoints)-self.curv_history[-30])>0.1:
+            if np.abs(curvature(waypoints)-self.curv_history[-30])>0.2:
                 #pass
                 curv = np.median(self.curv_history[-30:])
-                max_speed = 60
-                offset_speed = 30
+                max_speed = 50
+                offset_speed = 40
 
 
         target_speed = (max_speed - self.offset_speed) * np.exp(-self.exp_constant * np.abs( \

@@ -32,7 +32,7 @@ def evaluate():
         LD_module = LaneDetection()
         LatC_module = LateralController()
         LongC_module = LongitudinalController()
-        Speed_module = SpeedPrediction(max_speed=75, exp_constant=8, offset_speed=40, num_waypoints_used=6)
+        Speed_module = SpeedPrediction(max_speed=58, exp_constant=8, offset_speed=40, num_waypoints_used=6)
         reward_per_episode = 0
         for t in range(500):
             # perform step
