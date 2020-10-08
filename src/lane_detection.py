@@ -23,7 +23,7 @@ class LaneDetection:
 
     """
 
-    def __init__(self, cut_size=68, spline_smoothness=3, gradient_threshold=20, distance_maxima_gradient=3):
+    def __init__(self, cut_size=68, spline_smoothness=15, gradient_threshold=20, distance_maxima_gradient=3):
         self.car_position = np.array([48, 0])
         self.spline_smoothness = spline_smoothness
         self.cut_size = cut_size
@@ -68,7 +68,7 @@ class LaneDetection:
             :returns gradient_sum 68x96x1
 
         """
-        filter_type = "canny"
+        filter_type = "sobel"
         cut_size = self.cut_size
         # Compute image Gradient
         if filter_type == "sobel":
@@ -77,13 +77,13 @@ class LaneDetection:
             gradient_sum[gradient_sum < self.gradient_threshold/255] = 0
         elif filter_type == "canny":
             # Add gaussian blur
-            gray_image = ndi.gaussian_filter(gray_image, 4)
+            gray_image = ndi.gaussian_filter(gray_image, 2)
             # Compute gradients
             gradient_sum = feature.canny(gray_image, sigma = 0)
             gradient_sum = np.float64(gradient_sum)
         # Fill missing points
-        gradient_sum[0, :] = gradient_sum[1, :]
-        gradient_sum[cut_size - 1, :] = gradient_sum[cut_size - 2, :]
+        #gradient_sum[0, :] = gradient_sum[1, :]
+        #gradient_sum[cut_size - 1, :] = gradient_sum[cut_size - 2, :]
 
         return gradient_sum
 
@@ -192,8 +192,8 @@ class LaneDetection:
         old_point_2 = lane_boundary2_points
         row = 0
 
-        #lane_boundary1_points = np.empty((0,2), int)
-        #lane_boundary2_points = np.empty((0,2), int)
+
+        up = True
 
 
         # if no lane was found,use lane_boundaries of the preceding step
@@ -215,19 +215,24 @@ class LaneDetection:
                     closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
                     # lane_boundary 2
                     closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
-                    # Delete maximum
-                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
-                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
-                    if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
+
+                    if (10 >= dist_1 > 0) and (10 >= dist_2 > 0):
                         # Assign new values
                         old_point_1 = closest_point_1
                         old_point_2 = closest_point_2
                         # Append lane values
                         lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
                         lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                        # Delete maximum
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+                if up:
                     row += 1
-                else:
+                    if row == self.cut_size:
+                        up = False
+                if not up:
                     row -= 1
+
 
 
             # spline fitting using scipy.interpolate.splprep 
@@ -238,14 +243,14 @@ class LaneDetection:
             if lane_boundary1_points.shape[0] > 4 and lane_boundary2_points.shape[0] > 4:
                 # Pay attention: the first lane_boundary point might occur twice
                 # Compute uniques
-                lane_boundary1_points = np.unique(lane_boundary1_points, axis=0)
+                #lane_boundary1_points = np.unique(lane_boundary1_points, axis=0)
                 # lane_boundary 1
                 # Compute spline
                 x_1 = np.float64(lane_boundary1_points[:, 0])
                 y_1 = np.float64(lane_boundary1_points[:, 1])
                 lane_boundary1, _ = splprep([x_1, y_1], s=self.spline_smoothness)
                 # lane_boundary 2
-                lane_boundary2_points = np.unique(lane_boundary2_points, axis=0)
+                #lane_boundary2_points = np.unique(lane_boundary2_points, axis=0)
                 x_2 = np.float64(lane_boundary2_points[:, 0])
                 y_2 = np.float64(lane_boundary2_points[:, 1])
                 lane_boundary2, _ = splprep([x_2, y_2], s=self.spline_smoothness)
