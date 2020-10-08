@@ -192,9 +192,6 @@ class LaneDetection:
         old_point_2 = lane_boundary2_points
         row = 0
 
-        #lane_boundary1_points = np.empty((0,2), int)
-        #lane_boundary2_points = np.empty((0,2), int)
-
 
         # if no lane was found,use lane_boundaries of the preceding step
         if lane_found:
@@ -211,21 +208,25 @@ class LaneDetection:
                     edge_points = []
                     for edge in maxima[row]:
                         edge_points.append(np.array([edge, row]))
-                    # lane_boundary 1
-                    closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
-                    # lane_boundary 2
-                    closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
-                    # Delete maximum
-                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
-                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
-                    if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
-                        # Assign new values
-                        old_point_1 = closest_point_1
-                        old_point_2 = closest_point_2
-                        # Append lane values
-                        lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
-                        lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
-                    row += 1
+                    for _ in edge_points:
+                        # lane_boundary 1
+                        closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
+                        # lane_boundary 2
+                        closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
+                        # Delete maximum from edges
+                        edge_points = np.delete(edge_points, closest_point_1)
+                        edge_points = np.delete(edge_points, closest_point_2)
+                        # Delete maximum from peaks
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+                        if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
+                            # Assign point to be compared
+                            old_point_1 = closest_point_1
+                            old_point_2 = closest_point_2
+                            # Append lane values
+                            lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
+                            lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                        row += 1
                 else:
                     row -= 1
 
