@@ -214,7 +214,7 @@ class LaneDetection:
                         if edge_points.shape[0] >0:
                             # lane_boundary 1
                             closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
-                            if (100 >= dist_1 >= 0):
+                            if (200 >= dist_1 >= 0):
                                 # Assign point to be compared
                                 old_point_1 = closest_point_1
                                 # Append lane values
@@ -230,7 +230,7 @@ class LaneDetection:
                             # lane_boundary 2
                             closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
 
-                            if (100 >= dist_2 >= 0):
+                            if (200 >= dist_2 >= 0):
                                 # Assign point to be compared
                                 old_point_2 = closest_point_2
                                 # Append lane values
@@ -240,7 +240,6 @@ class LaneDetection:
                                                         np.where(np.all(edge_points == closest_point_2[0, :], \
                                                                         axis=1)), axis=0)
                                 maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
-                                print(dist_2)
                             peak_index += 1
                 # Increase the row value
                 row += 1
