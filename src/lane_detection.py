@@ -23,7 +23,7 @@ class LaneDetection:
 
     """
 
-    def __init__(self, cut_size=68, spline_smoothness=0, gradient_threshold=20, distance_maxima_gradient=3):
+    def __init__(self, cut_size=68, spline_smoothness=3, gradient_threshold=20, distance_maxima_gradient=3):
         self.car_position = np.array([48, 0])
         self.spline_smoothness = spline_smoothness
         self.cut_size = cut_size
@@ -56,7 +56,6 @@ class LaneDetection:
 
     def edge_detection(self, gray_image):
         """
-        ##### TODO #####
         In order to find edges in the gray state image, 
         this function should derive the absolute gradients of the gray state image.
         Derive the absolute gradients using numpy for each pixel. 
@@ -81,7 +80,7 @@ class LaneDetection:
             gray_image = ndi.gaussian_filter(gray_image, 4)
             # Compute gradients
             gradient_sum = feature.canny(gray_image, sigma = 0)
-            #gradient_sum = np.float64(gradient_sum)
+            gradient_sum = np.float64(gradient_sum)
         # Fill missing points
         gradient_sum[0, :] = gradient_sum[1, :]
         gradient_sum[cut_size - 1, :] = gradient_sum[cut_size - 2, :]
@@ -105,6 +104,7 @@ class LaneDetection:
         #arg_maxima= np.apply_along_axis(find_peaks, 1, gradient_sum, distance=self.distance_maxima_gradient)
 
         return arg_maxima
+
 
     def find_first_lane_point(self, gradient_sum):
         """
@@ -198,8 +198,6 @@ class LaneDetection:
 
         # if no lane was found,use lane_boundaries of the preceding step
         if lane_found:
-
-            ##### TODO #####
             #  in every iteration: 
             # 1- find maximum/edge with the lowest distance to the last lane boundary point 
             # 2- append maximum to lane_boundary1_points or lane_boundary2_points
@@ -213,7 +211,6 @@ class LaneDetection:
                     edge_points = []
                     for edge in maxima[row]:
                         edge_points.append(np.array([edge, row]))
-                    #print(edge_points)
                     # lane_boundary 1
                     closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
                     # lane_boundary 2
