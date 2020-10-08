@@ -53,7 +53,7 @@ while True:
     if steps % 2 == 0 or done:
         print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
         print("targetspeed {:+0.2f}".format(target_speed))
-        LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
+        LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints, curv=curv)
 
     steps += 1
     env.render()

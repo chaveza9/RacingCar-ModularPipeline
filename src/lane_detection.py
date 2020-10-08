@@ -292,7 +292,7 @@ class LaneDetection:
         min_indx = np.argmin(dist_2)
         return points[min_indx: min_indx+1, :], dist_2[min_indx]
 
-    def plot_state_lane(self, state_image_full, steps, fig, waypoints=[]):
+    def plot_state_lane(self, state_image_full, steps, fig, waypoints=[], curv=0):
         """
         Plot lanes and way points
         """
@@ -311,6 +311,7 @@ class LaneDetection:
             plt.scatter(waypoints[0], waypoints[1] + 96 - self.cut_size, color='white')
 
         #plt.axis('off')
+        plt.title(str(curv))
         plt.xlim((-0.5, 95.5))
         plt.ylim((-0.5, 95.5))
         plt.gca().axes.get_xaxis().set_visible(True)

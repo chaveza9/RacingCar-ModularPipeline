@@ -13,7 +13,7 @@ class LongitudinalController:
         PID_step()
         control()
     """
-    def __init__(self, KP=0.01, KI=0.0, KD=0.0):
+    def __init__(self, KP=0.2, KI=0.1, KD=0.1):
         self.last_error = 0
         self.sum_error = 0
         self.last_control = 0
@@ -40,12 +40,12 @@ class LongitudinalController:
         output: 
             control (u)
         """
-        
+        delta_error = 1
         # define error from set point target_speed to speed 
         err = target_speed -  speed
         self.sum_error = self.sum_error + err
         # Limit error sum
-        self.sum_error = np.clip(self.sum_error, -2, 2)
+        self.sum_error = np.clip(self.sum_error, -delta_error, delta_error)
         # Proportional Control
         P = self.KP * err
         # Integral Control
@@ -76,6 +76,8 @@ class LongitudinalController:
         control = self.PID_step(speed, target_speed)
         brake = 0
         gas = 0
+        # Populate history
+        #self.target_speed_history.append(target_speed)
 
         # translate the signal from the PID controller 
         # to the action variables gas and brake

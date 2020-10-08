@@ -67,29 +67,19 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         parameter_bound_waypoints (default=1)
         waytype (default="smoothed")
     """
-
+    # Create Spline
+    t = np.linspace(0, 1, 6)
+    lane_boundary1_points_points = np.array(splev(t, roadside1_spline))
+    lane_boundary2_points_points = np.array(splev(t, roadside2_spline))
     # derive center between corresponding roadside points
+    way_points_center = np.empty(shape=(2, num_waypoints))
+    for i in range(2):
+        for j in range(num_waypoints):
+            way_points_center[i][j] = ((lane_boundary1_points_points[i][j] + lane_boundary2_points_points[i][j]) / 2)
 
     if way_type == "center":
-        ##### TODO #####
-
-        # create spline arguments
-
-        # derive roadside points from spline
-
-        # center
-
-        t = np.linspace(0, 1, 6)
-        lane_boundary1_points_points = np.array(splev(t, roadside1_spline))
-        lane_boundary2_points_points = np.array(splev(t, roadside2_spline))
-
         # output way_points with shape(2 x Num_waypoints)
-        way_points = np.empty(shape=(2, num_waypoints))
-        for i in range(2):
-            for j in range(num_waypoints):
-                way_points[i][j] = ((lane_boundary1_points_points[i][j] + lane_boundary2_points_points[i][j]) / 2)
-        return way_points
-
+        return way_points_center
     elif way_type == "smooth":
         ##### TODO #####
 
@@ -98,22 +88,18 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         # derive roadside points from spline
 
         # derive center between corresponding roadside points (assumed)
-
         # smooth
-        # km = KMeans(n_clusters=12).fit(df)
-        # pts = km.cluster_centers_[km.labels_]
-        # way_points_center = (pts[:, 0], pts[:, 1])
-
         # optimization
-        way_points = minimize(smoothing_objective,  \
-                              (way_points_center),  \
+        way_points_center = way_points_center.reshape((2*num_waypoints))
+        way_points_center = minimize(smoothing_objective,
+                              way_points_center,
                               args=way_points_center)["x"]
 
-        return way_points.reshape(2, -1)
+        return way_points_center.reshape(2, -1)
 
 
 def target_speed_prediction(waypoints, num_waypoints_used=5,
-                            max_speed=60, exp_constant=4.5, offset_speed=30):
+                            max_speed=60, exp_constant=4.5, offset_speed=40):
     """
     Predict target speed given waypoints
     Implement the function using curvature()
@@ -128,8 +114,9 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
     output:
         target_speed (float)
     """
-    
+    #if curvature(waypoints)<3.5:
+    #    offset_speed = 37
     target_speed = (max_speed - offset_speed) * np.exp(-exp_constant * np.abs( \
         num_waypoints_used - 2 - curvature(waypoints))) + offset_speed
-
+    print("curvature", curvature(waypoints))
     return target_speed

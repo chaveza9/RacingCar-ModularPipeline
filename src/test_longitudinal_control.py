@@ -1,9 +1,9 @@
 import gym
 from gym.envs.box2d.car_racing import CarRacing
-from src.lane_detection import LaneDetection
-from src.waypoint_prediction import waypoint_prediction, target_speed_prediction
-from src.lateral_control import LateralController
-from src.longitudinal_control import LongitudinalController
+from lane_detection import LaneDetection
+from waypoint_prediction import waypoint_prediction, target_speed_prediction
+from lateral_control import LateralController
+from longitudinal_control import LongitudinalController
 import matplotlib.pyplot as plt
 import numpy as np
 import pyglet
@@ -42,8 +42,8 @@ while True:
     lane1, lane2 = LD_module.lane_detection(s)
 
     # waypoint and target_speed prediction
-    waypoints = waypoint_prediction(lane1, lane2)
-    target_speed = target_speed_prediction(waypoints, max_speed=60, exp_constant=4.5)
+    waypoints = waypoint_prediction(lane1, lane2, way_type="smooth")
+    target_speed = target_speed_prediction(waypoints, max_speed=70, exp_constant=4.5, offset_speed=57, num_waypoints_used=5)
 
     # control
     a[0] = LatC_module.stanley(waypoints, speed)
@@ -57,7 +57,7 @@ while True:
         print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
         print("speed {:+0.2f} targetspeed {:+0.2f}".format(speed, target_speed))
 
-        #LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
+        #LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints, curv=curv)
         LongC_module.plot_speed(speed, target_speed, steps, fig)
 
     steps += 1

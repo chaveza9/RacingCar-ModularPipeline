@@ -42,7 +42,7 @@ def evaluate():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=60, exp_constant=4.5)
+            target_speed = target_speed_prediction(waypoints, max_speed=80, exp_constant=4.5, offset_speed=60, num_waypoints_used=5)
 
             # control
             a[0] = LatC_module.stanley(waypoints, speed)
@@ -95,7 +95,7 @@ def calculate_score_for_leaderboard():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=60, exp_constant=4.5)
+            target_speed = target_speed_prediction(waypoints, max_speed=80, exp_constant=4.5, offset_speed=60, num_waypoints_used=5)
 
             # control
             a[0] = LatC_module.stanley(waypoints, speed)
@@ -114,6 +114,7 @@ def calculate_score_for_leaderboard():
     print('---------------------------')
 
 if __name__ == "__main__":
+    directory="./"
     if sys.argv[1] == "test":
         evaluate()
     elif sys.argv[1] == "score":
