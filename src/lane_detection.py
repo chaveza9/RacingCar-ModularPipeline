@@ -216,7 +216,7 @@ class LaneDetection:
                     # lane_boundary 2
                     closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
 
-                    if (10 >= dist_1 > 0) and (10 >= dist_2 > 0):
+                    if (100 >= dist_1 > 0) and (100 >= dist_2 > 0):
                         # Assign new values
                         old_point_1 = closest_point_1
                         old_point_2 = closest_point_2
