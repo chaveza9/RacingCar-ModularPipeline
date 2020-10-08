@@ -5,6 +5,7 @@ from scipy.interpolate import splprep, splev
 from sklearn.cluster import KMeans
 import pandas as pd
 from scipy.optimize import minimize
+from scipy.signal import medfilt
 import time
 
 
@@ -35,7 +36,7 @@ def unit_vector(v):
     return v / np.linalg.norm(v)
 
 
-def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
+def smoothing_objective(waypoints, waypoints_center, weight_curvature=90):
     """
     Objective for path smoothing
 
@@ -97,26 +98,61 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
         return way_points_center.reshape(2, -1)
 
+class SpeedPrediction:
+    def __init__(self, num_waypoints_used=5, max_speed=60, exp_constant=4.5, offset_speed=40):
+        self.num_waypoints_used = num_waypoints_used
+        self.max_speed=max_speed
+        self.exp_constant=exp_constant
+        self.offset_speed=offset_speed
+        self.curv_history = []
+        self.target_speed = []
+        self.index = 0
+        self.flag = False
 
-def target_speed_prediction(waypoints, num_waypoints_used=5,
-                            max_speed=60, exp_constant=4.5, offset_speed=40):
-    """
-    Predict target speed given waypoints
-    Implement the function using curvature()
+    def target_speed_prediction(self, waypoints):
+        """
+        Predict target speed given waypoints
+        Implement the function using curvature()
 
-    args:
-        waypoints [2,num_waypoints]
-        num_waypoints_used (default=5)
-        max_speed (default=60)
-        exp_constant (default=4.5)
-        offset_speed (default=30)
-    
-    output:
-        target_speed (float)
-    """
-    #if curvature(waypoints)<3.45:
-    #    offset_speed = 35
-    target_speed = (max_speed - offset_speed) * np.exp(-exp_constant * np.abs( \
-        num_waypoints_used - 2 - curvature(waypoints))) + offset_speed
-    print("curvature", curvature(waypoints))
-    return target_speed
+        args:
+            waypoints [2,num_waypoints]
+            num_waypoints_used (default=5)
+            max_speed (default=60)
+            exp_constant (default=4.5)
+            offset_speed (default=30)
+
+        output:
+            target_speed (float)
+        """
+        # Compute road curvature
+        curv = curvature(waypoints)
+        offset_speed = self.offset_speed
+        max_speed = self.max_speed
+        self.curv_history.append(curv)
+        # Check if closed curve is approaching
+        if len(self.curv_history)>30:
+            if np.abs(curvature(waypoints)-self.curv_history[-30])>0.1:
+                #pass
+                curv = np.median(self.curv_history[-30:])
+                max_speed = 60
+                offset_speed = 30
+
+
+        target_speed = (max_speed - self.offset_speed) * np.exp(-self.exp_constant * np.abs( \
+            self.num_waypoints_used - 2 - curv)) + offset_speed
+
+
+        # Populate  history
+        self.target_speed.append(target_speed)
+        return target_speed
+
+def ckeckList(lst, indexes):
+
+    ele = lst[-indexes]
+    chk = True
+    # Comparing each element with first item
+    for item in lst[:-indexes]:
+        if ele != item:
+            chk = False
+            break;
+    return chk

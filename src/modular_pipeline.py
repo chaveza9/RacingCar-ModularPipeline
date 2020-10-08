@@ -3,7 +3,7 @@ import sys
 import gym
 from gym.envs.box2d.car_racing import CarRacing
 from lane_detection import LaneDetection
-from waypoint_prediction import waypoint_prediction, target_speed_prediction
+from waypoint_prediction import waypoint_prediction, SpeedPrediction
 from lateral_control import LateralController
 from longitudinal_control import LongitudinalController
 import matplotlib.pyplot as plt
@@ -32,6 +32,7 @@ def evaluate():
         LD_module = LaneDetection()
         LatC_module = LateralController()
         LongC_module = LongitudinalController()
+        Speed_module = SpeedPrediction(max_speed=75, exp_constant=8, offset_speed=40, num_waypoints_used=6)
         reward_per_episode = 0
         for t in range(500):
             # perform step
@@ -42,8 +43,7 @@ def evaluate():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=80, exp_constant=4.5, offset_speed=60, num_waypoints_used=5)
-
+            target_speed = Speed_module.target_speed_prediction(waypoints)
             # control
             a[0] = LatC_module.stanley(waypoints, speed)
             a[1], a[2] = LongC_module.control(speed, target_speed)
@@ -84,6 +84,7 @@ def calculate_score_for_leaderboard():
         LD_module = LaneDetection()
         LatC_module = LateralController()
         LongC_module = LongitudinalController()
+        Speed_module = SpeedPrediction(max_speed=58, exp_constant=8, offset_speed=40, num_waypoints_used=6)
 
         reward_per_episode = 0
         for t in range(600):
@@ -95,7 +96,7 @@ def calculate_score_for_leaderboard():
 
             # waypoint and target_speed prediction
             waypoints = waypoint_prediction(lane1, lane2)
-            target_speed = target_speed_prediction(waypoints, max_speed=80, exp_constant=4.5, offset_speed=60, num_waypoints_used=5)
+            target_speed = Speed_module.target_speed_prediction(waypoints)
 
             # control
             a[0] = LatC_module.stanley(waypoints, speed)

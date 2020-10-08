@@ -2,7 +2,7 @@ import gym
 from gym.envs.box2d.car_racing import CarRacing
 
 from lane_detection import LaneDetection
-from waypoint_prediction import waypoint_prediction, target_speed_prediction
+from waypoint_prediction import waypoint_prediction, SpeedPrediction
 from lateral_control import LateralController
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,6 +26,7 @@ restart = False
 # init modules of the pipeline
 LD_module = LaneDetection()
 LatC_module = LateralController()
+Speed_module = SpeedPrediction(max_speed=58, exp_constant=8, offset_speed=40, num_waypoints_used=6)
 
 # init extra plot
 fig = plt.figure()
@@ -41,7 +42,7 @@ while True:
 
     # waypoint and target_speed prediction
     waypoints = waypoint_prediction(lane1, lane2)
-    target_speed = target_speed_prediction(waypoints)
+    target_speed = Speed_module.target_speed_prediction(waypoints)
 
     # control with constant gas and no braking
     a[0] = LatC_module.stanley(waypoints, speed)
@@ -53,7 +54,7 @@ while True:
     if steps % 2 == 0 or done:
         print("\naction " + str(["{:+0.2f}".format(x) for x in a]))
         print("targetspeed {:+0.2f}".format(target_speed))
-        LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints, curv=curv)
+        LD_module.plot_state_lane(s, steps, fig, waypoints=waypoints)
 
     steps += 1
     env.render()
