@@ -23,7 +23,7 @@ class LaneDetection:
 
     """
 
-    def __init__(self, cut_size=68, spline_smoothness=15, gradient_threshold=20, distance_maxima_gradient=3):
+    def __init__(self, cut_size=68, spline_smoothness=20, gradient_threshold=20, distance_maxima_gradient=3):
         self.car_position = np.array([48, 0])
         self.spline_smoothness = spline_smoothness
         self.cut_size = cut_size
@@ -226,6 +226,22 @@ class LaneDetection:
                         # Delete maximum
                         maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
                         maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+                    elif (100 >= dist_1 > 0) and (100 <= dist_2):
+                        # Assign new values
+                        old_point_1 = closest_point_1
+                        # Append lane values
+                        lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
+                        # Delete maximum
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
+                    elif (100 >= dist_2 > 0) and (100 <= dist_1):
+                        # Assign new values
+                        old_point_2 = closest_point_2
+                        # Append lane values
+                        lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                        # Delete maximum
+                        maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+
+
                 if up:
                     row += 1
                     if row == self.cut_size:
