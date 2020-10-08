@@ -114,8 +114,8 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
     output:
         target_speed (float)
     """
-    #if curvature(waypoints)<3.5:
-    #    offset_speed = 37
+    #if curvature(waypoints)<3.45:
+    #    offset_speed = 35
     target_speed = (max_speed - offset_speed) * np.exp(-exp_constant * np.abs( \
         num_waypoints_used - 2 - curvature(waypoints))) + offset_speed
     print("curvature", curvature(waypoints))

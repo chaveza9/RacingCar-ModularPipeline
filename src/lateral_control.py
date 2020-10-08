@@ -19,7 +19,7 @@ class LateralController:
     """
 
 
-    def __init__(self, gain_constant=0.6, damping_constant=0.05):
+    def __init__(self, gain_constant=0.9, damping_constant=0.05):
         self.gain_constant = gain_constant
         self.damping_constant = damping_constant
         self.previous_steering_angle = 0
