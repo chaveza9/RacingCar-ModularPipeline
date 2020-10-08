@@ -6,13 +6,13 @@ from scipy.optimize import minimize
 import time
 
 class LongitudinalController:
-    '''
+    """
     Longitudinal Control using a PID Controller
 
     functions:
         PID_step()
         control()
-    '''
+    """
     def __init__(self, KP=0.01, KI=0.0, KD=0.0):
         self.last_error = 0
         self.sum_error = 0
@@ -27,7 +27,7 @@ class LongitudinalController:
         self.KD = KD
 
     def PID_step(self, speed, target_speed):
-        '''
+        """
         ##### TODO ####
         Perform one step of the PID control
         - Implement the descretized control law.
@@ -39,16 +39,28 @@ class LongitudinalController:
 
         output: 
             control (u)
-        '''
+        """
         
         # define error from set point target_speed to speed 
-
-        # derive PID elements
+        err = target_speed -  speed
+        self.sum_error = self.sum_error + err
+        # Limit error sum
+        self.sum_error = np.clip(self.sum_error, -2, 2)
+        # Proportional Control
+        P = self.KP * err
+        # Integral Control
+        I =  self.KI * self.sum_error
+        # Derivative Control
+        D = self.KD * (err - self.last_error)
+        # Compute Control Variables
+        control = P+D+I
+        # Populate historical values
+        self.last_error = err
 
         return control
 
     def control(self, speed, target_speed):
-        '''
+        """
         Derive action values for gas and brake via the control signal
         using PID controlling
 
@@ -59,7 +71,7 @@ class LongitudinalController:
         output:
             gas
             brake
-        '''
+        """
 
         control = self.PID_step(speed, target_speed)
         brake = 0

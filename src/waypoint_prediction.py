@@ -12,9 +12,17 @@ def normalize(v):
     norm = np.linalg.norm(v, axis=0) + 0.00001
     return v / norm.reshape(1, v.shape[1])
 
+<<<<<<< HEAD
 
 def curvature(waypoints: np.ndarray):
     """
+||||||| 9390493
+def curvature(waypoints):
+    '''
+=======
+def curvature(waypoints):
+    """
+>>>>>>> control
     ##### TODO #####
     Curvature as  the sum of the normalized dot product between the way elements
     Implement second term of the smoothin objective.
@@ -53,8 +61,16 @@ def smoothing_objective(waypoints, waypoints_center, weight_curvature=40):
     return -1 * weight_curvature * curv + ls_tocenter
 
 
+<<<<<<< HEAD
 def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type="center"):
     """
+||||||| 9390493
+def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type = "smooth"):
+    '''
+=======
+def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way_type = "smooth"):
+    """
+>>>>>>> control
     ##### TODO #####
     Predict waypoint via two different methods:
     - center
@@ -66,10 +82,16 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
         num_waypoints (default=6)
         parameter_bound_waypoints (default=1)
         waytype (default="smoothed")
+<<<<<<< HEAD
     """
 
     # derive center between corresponding roadside points
 
+||||||| 9390493
+    '''
+=======
+    """
+>>>>>>> control
     if way_type == "center":
         ##### TODO #####
 
@@ -114,7 +136,15 @@ def waypoint_prediction(roadside1_spline, roadside2_spline, num_waypoints=6, way
 
 def target_speed_prediction(waypoints, num_waypoints_used=5,
                             max_speed=60, exp_constant=4.5, offset_speed=30):
+<<<<<<< HEAD
     """
+||||||| 9390493
+    '''
+    ##### TODO #####
+=======
+    """
+    ##### TODO #####
+>>>>>>> control
     Predict target speed given waypoints
     Implement the function using curvature()
 
@@ -127,9 +157,17 @@ def target_speed_prediction(waypoints, num_waypoints_used=5,
     
     output:
         target_speed (float)
+<<<<<<< HEAD
     """
     
     target_speed = (max_speed - offset_speed) * np.exp(-exp_constant * np.abs( \
         num_waypoints_used - 2 - curvature(waypoints))) + offset_speed
+||||||| 9390493
+    '''
+
+=======
+    """
+
+>>>>>>> control
 
     return target_speed

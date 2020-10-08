@@ -208,6 +208,7 @@ class LaneDetection:
                     edge_points = []
                     for edge in maxima[row]:
                         edge_points.append(np.array([edge, row]))
+<<<<<<< HEAD
                     edge_points = np.asarray(edge_points).reshape((-1, 2))
                     peak_index = 0
                     while peak_index<len(edge_points):
@@ -243,6 +244,45 @@ class LaneDetection:
                             peak_index += 1
                 # Increase the row value
                 row += 1
+||||||| 9390493
+                    print(edge_points)
+                    # lane_boundary 1
+                    closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
+                    # lane_boundary 2
+                    closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
+                    # Delete maximum
+                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
+                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+                    if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
+                        # Assign new values
+                        old_point_1 = closest_point_1
+                        old_point_2 = closest_point_2
+                        # Append lane values
+                        lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
+                        lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                    row += 1
+                else:
+                    row -= 1
+=======
+                    #print(edge_points)
+                    # lane_boundary 1
+                    closest_point_1, dist_1 = self.closest_node(old_point_1, edge_points)
+                    # lane_boundary 2
+                    closest_point_2, dist_2 = self.closest_node(old_point_2, edge_points)
+                    # Delete maximum
+                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_1[0, 0]))
+                    maxima[row] = np.delete(maxima[row], np.where(maxima[row] == closest_point_2[0, 0]))
+                    if (20 >= dist_1 > 0) and (20 >= dist_2 > 0):
+                        # Assign new values
+                        old_point_1 = closest_point_1
+                        old_point_2 = closest_point_2
+                        # Append lane values
+                        lane_boundary1_points = np.concatenate((lane_boundary1_points, old_point_1))
+                        lane_boundary2_points = np.concatenate((lane_boundary2_points, old_point_2))
+                    row += 1
+                else:
+                    row -= 1
+>>>>>>> control
 
 
             # spline fitting using scipy.interpolate.splprep 
@@ -304,9 +344,9 @@ class LaneDetection:
         if len(waypoints):
             plt.scatter(waypoints[0], waypoints[1] + 96 - self.cut_size, color='white')
 
-        plt.axis('off')
+        #plt.axis('off')
         plt.xlim((-0.5, 95.5))
         plt.ylim((-0.5, 95.5))
-        plt.gca().axes.get_xaxis().set_visible(False)
-        plt.gca().axes.get_yaxis().set_visible(False)
+        plt.gca().axes.get_xaxis().set_visible(True)
+        plt.gca().axes.get_yaxis().set_visible(True)
         fig.canvas.flush_events()
